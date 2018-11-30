@@ -3,15 +3,20 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var ejs = require('ejs');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var logonRouter = require('./routes/logon');
+var mainRouter = require('./routes/main');
+var goodsRouter = require('./routes/goods');
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.engine('html',ejs.__express);
+app.set('view engine', 'html');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -19,8 +24,30 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//登陆拦截
+// app.use((req,res,next)=>{
+//   if(req.cookie.userId){
+//     next();
+//   }else{
+//     if(req.originalUrl == '/users'){
+//       next();
+//     }else{
+//         req.flash('error', '请先登录');
+//         res.redirect('/user/login');
+//       res.json({
+//           status:'10001',
+//           msg:'当前未登录',
+//           result:''
+//       })
+//     }
+//   }
+// })
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/logon',logonRouter);
+app.use('/main',mainRouter);
+app.use('/goods',goodsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
